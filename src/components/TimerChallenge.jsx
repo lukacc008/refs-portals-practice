@@ -1,9 +1,11 @@
 import { useState, useRef } from "react";
+import ResultModal from "./ResultModal";
 
 //let timer; it doesnt work because if multiple challenges are started some pointers will be thrown away by react.
 
 export default function TimerChallenge({ title, targetTime }) {
   const timer = useRef();
+  const dialog = useRef();
 
   const [timerStarted, setTimerStarted] = useState(false);
   const [timerExpired, setTimerExpired] = useState(false);
@@ -13,6 +15,7 @@ export default function TimerChallenge({ title, targetTime }) {
   function handleStart() {
     timer.current = setTimeout(() => {
       setTimerExpired(true);
+      dialog.current.showModal();
     }, targetTime * 1000);
 
     setTimerStarted(true); //this will execute first even tho its not on top,because the timer will still run.
@@ -23,20 +26,22 @@ export default function TimerChallenge({ title, targetTime }) {
   }
 
   return (
-    <section className="challenge">
-      <h2>{title}</h2>
-      {timerExpired && <p>You lost</p>}
-      <p className="challenge-time">
-        {targetTime} second{targetTime > 1 ? "s" : ""}
-      </p>
-      <p>
-        <button onClick={timerStarted ? handleStop : handleStart}>
-          {timerStarted ? "Stop" : "Start"} Challange
-        </button>
-      </p>
-      <p className={timerStarted ? "active" : undefined}>
-        {timerStarted ? "Time is running..." : "Timer inactive"}
-      </p>
-    </section>
+    <>
+      <ResultModal ref={dialog} targetTime={targetTime} result="lost" />
+      <section className="challenge">
+        <h2>{title}</h2>
+        <p className="challenge-time">
+          {targetTime} second{targetTime > 1 ? "s" : ""}
+        </p>
+        <p>
+          <button onClick={timerStarted ? handleStop : handleStart}>
+            {timerStarted ? "Stop" : "Start"} Challange
+          </button>
+        </p>
+        <p className={timerStarted ? "active" : undefined}>
+          {timerStarted ? "Time is running..." : "Timer inactive"}
+        </p>
+      </section>
+    </>
   );
 }
